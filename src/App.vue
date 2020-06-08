@@ -1,33 +1,24 @@
 <template>
   <v-app id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link>
-      |
-      <router-link to="/about">About</router-link>
-    </div>
+    <v-container fluid>
+      <v-row>
+        <v-col sm="6" md="3"><login id="login" /></v-col>
+        <v-col sm="6" md="9">
+          <router-view id="router" :key="$route.path" />
+        </v-col>
+      </v-row>
+    </v-container>
     <router-view />
+
+    <alertdialog />
   </v-app>
 </template>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+<script>
+import login from "@/views/Login";
+export default {
+  components: {
+    login,
+    alertdialog: () => import("@/components/AlertDialog.vue")
+  }
+};
+</script>
