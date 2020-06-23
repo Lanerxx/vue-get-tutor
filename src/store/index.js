@@ -9,68 +9,34 @@ Vue.use(Vuex);
 const myState = {
   exception: { message: null },
   isLogin: false,
+  notLogin: true,
   name: null,
   user: {
     name: "BO",
     address: "956"
   },
-  homework: { name: null, deadline: null },
-  teacher: null,
-  courses: null
+  courses: []
 };
 
 const myMutations = {
-  [types.UPDATE_USER](state, data) {
-    state.user = data;
-  },
-  [types.LIST_HOMEWORKS](state, data) {
-    state.homeworks = data;
-  },
-  [types.GET_HOMEWORK](state, data) {
-    state.homework = data;
-  },
   [types.GET_EXCEPTION](state, data) {
     state.exception = data;
   },
   [types.LOGIN](state, data) {
     state.isLogin = data;
   },
-  name(state, data) {
-    state.name = data;
-  },
-  teacher(state, data) {
-    state.teacher = data;
-  },
-  courses(state, data) {
+  [types.LIST_COURSES_TUTOR](state, data) {
     state.courses = data;
   }
 };
 
 const myActions = {
-  [types.UPDATE_USER]({ commit }, data) {
-    setTimeout(() => {
-      commit(types.UPDATE_USER, data);
-    }, 2000);
-  },
-
-  async [types.LIST_HOMEWORKS]({ commit }, data) {
-    let resp = await axios.get("homeworks");
-    commit(types.LIST_HOMEWORKS, resp.data.homeworks);
-  },
-
-  async [types.GET_HOMEWORK]({ commit }, data) {
-    let resp = await axios.get(`homeworks/${data.hid}`);
-    commit(types.GET_HOMEWORK, resp.data.homework);
-  },
-  // async [types.GET_HOMEWORK]({ commit }, data) {
-  //   let resp = await axios.get(`homeworks/${data.hid}`);
-  //   return Promise.resolve(resp.data.homework);
-  // },
-
   // 登录
   async [types.LOGIN]({ commit }, data) {
     let resp = await axios.post("login", data);
     let auth = resp.headers[author];
+
+    console.debug("ihiuhihihhuih");
     if (auth != null) {
       sessionStorage.setItem(author, auth);
       sessionStorage.setItem("role", resp.data.role);
@@ -78,10 +44,7 @@ const myActions = {
       commit(types.LOGIN, true);
     }
   },
-  async index({ commit }, data) {
-    let resp = await axios.get("index");
-    commit("name", resp.data.name);
-  },
+
   // ------以下为向springboot发出请求
   // 需要取消mock，配置后端跨域
   async backendindex({ commit }, data) {
@@ -92,13 +55,26 @@ const myActions = {
   },
   async addCourse({ commit }, data) {
     let resp = await axios.post("teacher/courses", data);
+  },
+  async [types.LIST_COURSES_TUTOR]({ commit }, data) {
+    let resp = await axios.get("tutor/courses");
+    commit(types.LIST_COURSES_TUTOR, resp.data.courses);
+  },
+  async [types.UPDATE_COURSE_TUTOR]({ commit }, data) {
+    let resp = await axios.patch("tutor/course", data);
+  },
+  async [types.ADD_COURSE_TUTOR]({ commit }, data) {
+    let resp = await axios.post("tutor/course", data);
+  },
+  async [types.DELETE_COURSE_TUTOR]({ commit }, data) {
+    let resp = await axios.delete(`tutor/courses/${data.id}`);
   }
 };
 
 export default new Vuex.Store({
-  state: {},
-  mutations: {},
-  actions: {},
+  state: myState,
+  mutations: myMutations,
+  actions: myActions,
   modules: {}
 });
 
@@ -106,4 +82,5 @@ export default new Vuex.Store({
 // 执行时判断，刷新时检测；也可以添加长度等更严格判断
 if (sessionStorage.getItem(author) != null) {
   myState.isLogin = true;
+  myState.notLogin = false;
 }

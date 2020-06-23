@@ -16,6 +16,8 @@
           <sidebar id="sidebar" />
         </v-col>
         <v-col cols="9">
+          <welcome v-if="isLogin" />
+          <login v-else />
           <router-view id="router" :key="$route.path"></router-view>
         </v-col>
       </v-row>
@@ -30,12 +32,19 @@
 import sidebar from "@/views/Sidebar.vue";
 import MyFooter from "@/views/Footer.vue";
 import MyHeader from "@/views/Header.vue";
+import { mapState } from "vuex";
+
 export default {
   components: {
+    login: () => import("@/views/Login.vue"),
+    welcome: () => import("@/views/Welcome.vue"),
     MyHeader,
     MyFooter,
     sidebar,
     alertdialog: () => import("@/components/AlertDialog.vue")
+  },
+  computed: {
+    ...mapState(["isLogin"])
   }
 };
 </script>

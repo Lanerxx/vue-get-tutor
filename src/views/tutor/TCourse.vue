@@ -78,6 +78,11 @@
 </template>
 
 <script>
+import { LIST_COURSES_TUTOR } from "@/store/types.js";
+import { UPDATE_COURSE_TUTOR } from "@/store/types.js";
+import { ADD_COURSE_TUTOR } from "@/store/types.js";
+import { DELETE_COURSE_TUTOR } from "@/store/types.js";
+import { mapState } from "vuex";
 export default {
   data: () => ({
     dialog: false,
@@ -109,7 +114,8 @@ export default {
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
-    }
+    },
+    ...mapState(["courses"])
   },
 
   watch: {
@@ -120,52 +126,18 @@ export default {
 
   created() {
     this.initialize();
+    this.$store.dispatch(LIST_COURSES_TUTOR);
   },
 
   methods: {
     initialize() {
-      this.desserts = [
-        {
-          name: "Web系统框架",
-          weight: 0.8,
-          lowestMark: 60
-        },
-        {
-          name: "Java",
-          weight: 0.7,
-          lowestMark: 70
-        },
-        {
-          name: "Eclair",
-          weight: 0.3,
-          lowestMark: 60
-        },
-        {
-          name: "Cupcake",
-          weight: 0.6,
-          lowestMark: 60
-        },
-        {
-          name: "Gingerbread",
-          weight: 0.4,
-          lowestMark: 80
-        },
-        {
-          name: "Jelly bean",
-          weight: 0.5,
-          lowestMark: 0
-        },
-        {
-          name: "Lollipop",
-          weight: 0.2,
-          lowestMark: 0
-        }
-      ];
+      this.desserts = this.courses;
     },
 
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
+
       this.dialog = true;
     },
 
@@ -173,6 +145,9 @@ export default {
       const index = this.desserts.indexOf(item);
       confirm("Are you sure you want to delete this item?") &&
         this.desserts.splice(index, 1);
+      this.$store.dispatch(DELETE_COURSE_TUTOR, {
+        id: item.id
+      });
     },
 
     close() {
@@ -186,9 +161,21 @@ export default {
     save() {
       if (this.editedIndex > -1) {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
+        this.$store.dispatch(UPDATE_COURSE_TUTOR, {
+          id: this.desserts[this.editedIndex].id,
+          name: this.editedItem.name,
+          weight: this.editedItem.weight,
+          lowestMark: this.editedItem.lowestMark
+        });
       } else {
         this.desserts.push(this.editedItem);
+        this.$store.dispatch(ADD_COURSE_TUTOR, {
+          name: this.editedItem.name,
+          weight: this.editedItem.weight,
+          lowestMark: this.editedItem.lowestMark
+        });
       }
+
       this.close();
     }
   }

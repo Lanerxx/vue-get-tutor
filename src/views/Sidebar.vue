@@ -8,12 +8,12 @@
         <v-list-item-title>User</v-list-item-title>
       </v-list-item>
 
-      <v-list-group prepend-icon="mdi-home" value="true">
+      <v-list-group prepend-icon="mdi-home">
         <template v-slot:activator>
           <v-list-item-title>Home</v-list-item-title>
         </template>
 
-        <v-list-group no-action sub-group value="true">
+        <v-list-group no-action sub-group>
           <template v-slot:activator>
             <v-list-item-content>
               <v-list-item-title>Course</v-list-item-title>
@@ -57,3 +57,23 @@
     </v-list>
   </v-card>
 </template>
+<script>
+export default {
+  data: () => ({
+    admin: [
+      ["Management", "people_outline"],
+      ["Settings", "settings"]
+    ],
+    tutor: [
+      ["Create", "add"],
+      ["Read", "insert_drive_file"],
+      ["Update", "update"],
+      ["Delete", "delete"]
+    ],
+    student: [
+      ["Management", "people_outline"],
+      ["Settings", "settings"]
+    ]
+  })
+};
+</script>

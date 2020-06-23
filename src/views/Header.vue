@@ -4,6 +4,8 @@
 
     <v-toolbar-title>Application</v-toolbar-title>
 
-    <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon>
+      <v-btn color="success" outlined fab small to="">Login</v-btn>
+    </v-app-bar-nav-icon>
   </v-app-bar>
 </template>
