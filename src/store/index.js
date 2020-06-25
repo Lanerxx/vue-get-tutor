@@ -15,7 +15,10 @@ const myState = {
     name: "BO",
     address: "956"
   },
-  courses: []
+  courses: [],
+  students: [],
+  rankStudents: [],
+  myStudents: []
 };
 
 const myMutations = {
@@ -27,6 +30,12 @@ const myMutations = {
   },
   [types.LIST_COURSES_TUTOR](state, data) {
     state.courses = data;
+  },
+  [types.LIST_STUDENTS_TUTOR](state, data) {
+    state.students = data;
+  },
+  [types.LIST_RANKING_STUDENTS_TUTOR](state, data) {
+    state.rankStudents = data;
   }
 };
 
@@ -68,6 +77,26 @@ const myActions = {
   },
   async [types.DELETE_COURSE_TUTOR]({ commit }, data) {
     let resp = await axios.delete(`tutor/courses/${data.id}`);
+  },
+  async [types.LIST_STUDENTS_TUTOR]({ commit }, data) {
+    let resp = await axios.get("tutor/students");
+    commit(types.LIST_STUDENTS_TUTOR, resp.data.students);
+  },
+  async [types.UPDATE_STUDENT_TUTOR]({ commit }, data) {
+    let resp = await axios.patch("tutor/student", data);
+  },
+  async [types.ADD_STUDENT_TUTOR]({ commit }, data) {
+    let resp = await axios.post("tutor/student", data);
+  },
+  async [types.DELETE_STUDENT_TUTOR]({ commit }, data) {
+    let resp = await axios.delete(`tutor/student/${data.id}`);
+  },
+  async [types.LIST_RANKING_STUDENTS_TUTOR]({ commit }, data) {
+    let resp = await axios.get("tutor/ranking");
+    commit(types.LIST_RANKING_STUDENTS_TUTOR, resp.data.students);
+  },
+  async [types.ADD_ELECTIVES_TUTOR]({ commit }, data) {
+    let resp = await axios.post("tutor/electives", data);
   }
 };
 

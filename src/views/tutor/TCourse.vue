@@ -4,13 +4,22 @@
       :headers="headers"
       :items="desserts"
       sort-by="weight"
+      sort-desc="true"
       class="elevation-1"
+      :search="search"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
           <v-toolbar-title>My Course</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
           <v-dialog v-model="dialog" max-width="500px">
             <template v-slot:activator="{ on, attrs }">
               <v-btn color="#5482ba" dark class="mb-2" v-bind="attrs" v-on="on">
@@ -66,7 +75,7 @@
       </template>
 
       <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize">Reset</v-btn>
+        <v-btn color="#5482ba" @click="initialize">Reset</v-btn>
       </template>
     </v-data-table>
     <br />
@@ -85,6 +94,7 @@ import { DELETE_COURSE_TUTOR } from "@/store/types.js";
 import { mapState } from "vuex";
 export default {
   data: () => ({
+    search: "",
     dialog: false,
     headers: [
       {
@@ -159,8 +169,20 @@ export default {
     },
 
     save() {
+      var flag = true;
+      if (
+        isNaN(this.editedItem.weight) ||
+        this.editedItem.weight > 1 ||
+        this.editedItem.weight < 0 ||
+        isNaN(this.editedItem.lowestMark) ||
+        this.editedItem.lowestMark > 100 ||
+        this.editedItem.lowestMark < 0
+      ) {
+        flag = false;
+      }
       if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem);
+        if (flag)
+          Object.assign(this.desserts[this.editedIndex], this.editedItem);
         this.$store.dispatch(UPDATE_COURSE_TUTOR, {
           id: this.desserts[this.editedIndex].id,
           name: this.editedItem.name,
@@ -168,7 +190,7 @@ export default {
           lowestMark: this.editedItem.lowestMark
         });
       } else {
-        this.desserts.push(this.editedItem);
+        if (flag) this.desserts.push(this.editedItem);
         this.$store.dispatch(ADD_COURSE_TUTOR, {
           name: this.editedItem.name,
           weight: this.editedItem.weight,

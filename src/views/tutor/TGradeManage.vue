@@ -1,34 +1,92 @@
 <template>
   <div>
     <v-card class="d-flex flex-row-reverse">
+      <v-btn
+        class="ma-2"
+        outlined
+        fab
+        color="#5482ba"
+        @click="downloadTemplate"
+      >
+        <v-icon>mdi-format-list-bulleted-square</v-icon>
+      </v-btn>
       <v-card-actions>
-        <v-btn class="ma-2" outlined fab color="#5482ba">
-          <v-icon>mdi-format-list-bulleted-square</v-icon>
-        </v-btn>
-        <v-file-input
-          autofocus
-          multiple
-          label="File input"
-          placeholder="Please import the transcript."
-        ></v-file-input>
+        <form>
+          <label class="upload">
+            <input
+              class="file"
+              display="false"
+              type="file"
+              @change="readFile"
+              accept=".xls,.xlsx"
+            />
+            Import the transcript.
+          </label>
+        </form>
       </v-card-actions>
     </v-card>
+
     <v-divider></v-divider>
+    <template v-if="studentsEle">
+      <v-btn
+        block
+        x-large
+        outlined
+        color="#5482ba"
+        dark
+        class="mb-2"
+        @click="submit"
+      >
+        Submit The Transcript
+        <v-card-text>{{ course }}</v-card-text>
+      </v-btn>
+
+      <v-simple-table>
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th class="text-left">Number</th>
+              <th class="text-left">Name</th>
+              <th class="text-left">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in studentsEle" :key="item.name">
+              <td>{{ item.number }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.grade }}</td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
+
+      <v-divider></v-divider>
+    </template>
+    <v-divider></v-divider>
+    <v-card-text class="text-end">
+      You must import the student's transcript and assign weights to each
+      subject before you can view the rankings.
+    </v-card-text>
     <v-data-table
       :headers="headers"
       :items="desserts"
       sort-by="weightedGrade"
+      sort-desc="true"
       class="elevation-1"
+      :search="search"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
           <v-toolbar-title>Grade Manage</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer>
-            <v-card-text class="text-end">
-              You must import the student's transcript and assign weights to
-              each subject before you can view the rankings.
-            </v-card-text>
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+            ></v-text-field>
           </v-spacer>
           <v-dialog v-model="dialog" max-width="500px">
             <v-card>
@@ -87,37 +145,43 @@
 </template>
 
 <script>
+import { readStudentFile } from "@/util/ExcelUtils.js";
+import { LIST_RANKING_STUDENTS_TUTOR } from "@/store/types.js";
+import { ADD_ELECTIVES_TUTOR } from "@/store/types.js";
+import { mapState } from "vuex";
 export default {
   data: () => ({
+    studentsEle: null,
+    course: "",
+    search: "",
     dialog: false,
     headers: [
       {
         text: "StudentName*",
         align: "start",
         sortable: false,
-        value: "name"
+        value: "user.name"
       },
-      { text: "Number*", value: "number" },
+      { text: "Number*", value: "user.number" },
       { text: "WeightedGrade", value: "weightedGrade" }
     ],
     desserts: [],
     editedIndex: -1,
     editedItem: {
       name: "",
-      number: 0,
-      state: "未选"
+      number: 0
     },
     defaultItem: {
       name: "",
-      number: 0,
-      state: "未选"
+      number: 0
     }
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
-    }
+    },
+    ...mapState(["rankStudents"])
   },
 
   watch: {
@@ -128,19 +192,39 @@ export default {
 
   created() {
     this.initialize();
+    this.$store.dispatch(LIST_RANKING_STUDENTS_TUTOR);
   },
 
   methods: {
     initialize() {
-      this.desserts = [
-        { name: "兰二", number: 201701, weightedGrade: 80 },
-        { name: "久久", number: 201702, weightedGrade: 80 },
-        { name: "小老锤", number: 201703, weightedGrade: 78 },
-        { name: "咸鱼", number: 201704, weightedGrade: 76 },
-        { name: "巴掌", number: 201705, weightedGrade: 78 },
-        { name: "Jelly bean", number: 201706, weightedGrade: 77 },
-        { name: "Lollipop", number: 201707, weightedGrade: 70 }
-      ];
+      this.desserts = this.rankStudents;
+    },
+
+    submit() {
+      var eles = [];
+      var j = 0;
+      var len = this.studentsEle.length;
+      for (j; j < len; j++) {
+        var ele = {
+          grade: 0,
+          student: {
+            user: {
+              number: 0,
+              name: ""
+            }
+          },
+          course: {
+            name: ""
+          }
+        };
+        ele.student.user.number = this.studentsEle[j].number;
+        ele.student.user.name = this.studentsEle[j].name;
+        ele.grade = this.studentsEle[j].grade;
+        ele.course.name = this.course;
+        eles.push(ele);
+      }
+
+      this.$store.dispatch(ADD_ELECTIVES_TUTOR, eles);
     },
 
     editItem(item) {
@@ -164,7 +248,38 @@ export default {
         this.desserts.push(this.editedItem);
       }
       this.close();
+    },
+
+    readFile(event) {
+      let file = event.target.files[0];
+      readStudentFile(file).then(data => {
+        this.studentsEle = data[0];
+        this.course = data[1];
+      });
+    },
+
+    downloadTemplate() {
+      window.open("./file/TranscriptTemplate.xls");
     }
   }
 };
 </script>
+
+<style scoped>
+.upload {
+  padding: 4px 10px;
+  height: 20px;
+  line-height: 20px;
+  position: relative;
+  border: 1px solid #999;
+  text-decoration: none;
+  color: #666;
+}
+.file {
+  position: absolute;
+  overflow: hidden;
+  right: 0;
+  top: 0;
+  opacity: 0;
+}
+</style>
