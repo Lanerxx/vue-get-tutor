@@ -2,15 +2,15 @@
   <div>
     <v-data-table
       :headers="headers"
-      :items="courses"
-      sort-by="weight"
+      :items="tutors"
+      sort-by="user.name"
       sort-desc="true"
       class="elevation-1"
       :search="search"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
-          <v-toolbar-title>My Course</v-toolbar-title>
+          <v-toolbar-title>Tutors</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-btn color="#5482ba" text @click="initialize">
             Reset The Table
@@ -72,12 +72,13 @@
         </v-toolbar>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)">
+        <router-link :to="`/information/${item.id}`">Apply</router-link>
+        <v-icon disabled="" small class="mr-2" @click="editItem(item)">
           mdi-pencil
         </v-icon>
-        <v-icon small @click="deleteItem(item)">
+        <!-- <v-icon small @click="deleteItem(item)">
           mdi-delete
-        </v-icon>
+        </v-icon> -->
       </template>
 
       <template v-slot:no-data>
@@ -94,10 +95,8 @@
 </template>
 
 <script>
-import { LIST_COURSES_TUTOR } from "@/store/types.js";
-import { UPDATE_COURSE_TUTOR } from "@/store/types.js";
-import { ADD_COURSE_TUTOR } from "@/store/types.js";
-import { DELETE_COURSE_TUTOR } from "@/store/types.js";
+import { GET_INDEX_STUDENT } from "@/store/types.js";
+
 import { mapState } from "vuex";
 export default {
   data: () => ({
@@ -105,13 +104,13 @@ export default {
     dialog: false,
     headers: [
       {
-        text: "ClassName*",
+        text: "TutorName*",
         align: "start",
         sortable: false,
-        value: "name"
+        value: "user.name"
       },
-      { text: "Weight*", value: "weight" },
-      { text: "LowestMark*", value: "lowestMark" },
+      { text: "Ranges", value: "ranges" },
+      { text: "Quantity", value: "quantity" },
       { text: "Actions", value: "actions", sortable: false }
     ],
     desserts: [],
@@ -132,7 +131,7 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
     },
-    ...mapState(["courses"])
+    ...mapState(["student", "tutors"])
   },
   watch: {
     dialog(val) {
@@ -141,7 +140,7 @@ export default {
   },
 
   created() {
-    this.$store.dispatch(LIST_COURSES_TUTOR);
+    this.$store.dispatch(GET_INDEX_STUDENT);
     this.initialize();
   },
 
@@ -160,9 +159,6 @@ export default {
       const index = this.desserts.indexOf(item);
       confirm("Are you sure you want to delete this item?") &&
         this.desserts.splice(index, 1);
-      this.$store.dispatch(DELETE_COURSE_TUTOR, {
-        id: item.id
-      });
     },
 
     close() {
@@ -173,37 +169,7 @@ export default {
       });
     },
 
-    save() {
-      var flag = true;
-      if (
-        isNaN(this.editedItem.weight) ||
-        this.editedItem.weight > 1 ||
-        this.editedItem.weight < 0 ||
-        isNaN(this.editedItem.lowestMark) ||
-        this.editedItem.lowestMark > 100 ||
-        this.editedItem.lowestMark < 0
-      ) {
-        flag = false;
-      }
-      if (this.editedIndex > -1) {
-        this.$store.dispatch(UPDATE_COURSE_TUTOR, {
-          id: this.desserts[this.editedIndex].id,
-          name: this.editedItem.name,
-          weight: this.editedItem.weight,
-          lowestMark: this.editedItem.lowestMark
-        });
-        if (flag)
-          Object.assign(this.desserts[this.editedIndex], this.editedItem);
-      } else {
-        this.$store.dispatch(ADD_COURSE_TUTOR, {
-          name: this.editedItem.name,
-          weight: this.editedItem.weight,
-          lowestMark: this.editedItem.lowestMark
-        });
-        if (flag) this.desserts.push(this.editedItem);
-      }
-      this.close();
-    }
+    save() {}
   }
 };
 </script>

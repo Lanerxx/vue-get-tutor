@@ -37,14 +37,27 @@ let tutorRoutes = [
   {
     path: "/tutorGradeManage",
     component: () => import("@/views/tutor/TGradeManage.vue")
-  },
-  {
-    path: "/tutorSelectAdvance",
-    component: () => import("@/views/tutor/TSelectAdvance.vue")
   }
 ];
 
-let studentRoutes = [];
+let studentRoutes = [
+  {
+    path: "/studentInformation",
+    component: () => import("@/views/student/SInfo.vue")
+  },
+  {
+    path: "/studentApplication",
+    component: () => import("@/views/student/SApplication.vue")
+  },
+  {
+    path: "/studentTutor",
+    component: () => import("@/views/student/STutor.vue")
+  },
+  {
+    path: "/information/:tid",
+    component: () => import("@/views/student/STutorDetail.vue")
+  }
+];
 
 // 必须与后端提前约定。按角色，动态加载路由信息
 // 使其他角色即使知道路由路径，也无法加载对应的组件
@@ -62,7 +75,7 @@ export function updateRoutes() {
       router.addRoutes(tutorRoutes);
       break;
     case studentRole:
-      router.addRoutes(studentRole);
+      router.addRoutes(studentRoutes);
       break;
   }
 }

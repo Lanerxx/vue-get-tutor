@@ -69,7 +69,7 @@
     </v-card-text>
     <v-data-table
       :headers="headers"
-      :items="desserts"
+      :items="rankStudents"
       sort-by="weightedGrade"
       sort-desc="true"
       class="elevation-1"
@@ -79,6 +79,9 @@
         <v-toolbar flat color="white">
           <v-toolbar-title>Grade Manage</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
+          <v-btn color="#5482ba" text @click="initialize">
+            Reset The Table
+          </v-btn>
           <v-spacer>
             <v-text-field
               v-model="search"
@@ -136,9 +139,8 @@
           mdi-delete
         </v-icon>
       </template>
-
       <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize">Reset</v-btn>
+        <v-btn color="#5482ba" @click="initialize">Reset</v-btn>
       </template>
     </v-data-table>
   </div>

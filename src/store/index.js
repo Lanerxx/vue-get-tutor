@@ -10,15 +10,20 @@ const myState = {
   exception: { message: null },
   isLogin: false,
   notLogin: true,
-  name: null,
-  user: {
-    name: "BO",
-    address: "956"
-  },
-  courses: [],
+  isTutor: false,
+  isStudent: false,
+  isAdmin: false,
+  student: null,
   students: [],
   rankStudents: [],
-  myStudents: []
+  myStudents: [],
+  courses: [],
+  tutor: null,
+  tutors: [],
+  courseDe: [],
+  electivesDe: [],
+  studentsDe: [],
+  qualified: null
 };
 
 const myMutations = {
@@ -36,6 +41,33 @@ const myMutations = {
   },
   [types.LIST_RANKING_STUDENTS_TUTOR](state, data) {
     state.rankStudents = data;
+  },
+  [types.GET_TUTOR](state, date) {
+    state.tutor = date;
+  },
+  [types.GET_MYSTUDENTS_TUTOR](state, data) {
+    state.myStudents = data;
+  },
+  [types.CERTI_ADMIN](state, data) {
+    state.isAdmin = data;
+  },
+  [types.CERTI_TUTOR](state, data) {
+    state.isTutor = data;
+  },
+  [types.CERTI_STUDENT](state, data) {
+    state.isStudent = data;
+  },
+  [types.GET_STUDENT](state, data) {
+    state.student = data;
+  },
+  [types.GET_TUTORS_STUDENT](state, data) {
+    state.tutors = data;
+  },
+  [types.GET_TUTORDETAIL_STUDENT](state, data) {
+    state.courseDe = data.courses;
+    state.electivesDe = data.electives;
+    state.studentsDe = data.students;
+    state.qualified = data.qualified;
   }
 };
 
@@ -50,20 +82,27 @@ const myActions = {
       sessionStorage.setItem(author, auth);
       sessionStorage.setItem("role", resp.data.role);
       updateRoutes();
+      switch (sessionStorage.getItem("role")) {
+        case adminRole:
+          commit(types.CERTI_ADMIN, true);
+          break;
+        case teacherRole:
+          commit(types.CERTI_TUTOR, true);
+          break;
+        case studentRole:
+          commit(types.CERTI_STUDENT, true);
+          break;
+      }
       commit(types.LOGIN, true);
     }
   },
 
   // ------以下为向springboot发出请求
   // 需要取消mock，配置后端跨域
-  async backendindex({ commit }, data) {
-    let resp = await axios.get("teacher/index");
-
-    commit("teacher", resp.data.teacher);
-    commit("courses", resp.data.courses);
-  },
-  async addCourse({ commit }, data) {
-    let resp = await axios.post("teacher/courses", data);
+  async [types.GET_INDEX_TUTOR]({ commit }, data) {
+    let resp = await axios.get("tutor/index");
+    commit(types.GET_TUTOR, resp.data.tutor);
+    commit(types.GET_MYSTUDENTS_TUTOR, resp.data.students);
   },
   async [types.LIST_COURSES_TUTOR]({ commit }, data) {
     let resp = await axios.get("tutor/courses");
@@ -71,12 +110,15 @@ const myActions = {
   },
   async [types.UPDATE_COURSE_TUTOR]({ commit }, data) {
     let resp = await axios.patch("tutor/course", data);
+    commit(types.LIST_COURSES_TUTOR, resp.data.courses);
   },
   async [types.ADD_COURSE_TUTOR]({ commit }, data) {
     let resp = await axios.post("tutor/course", data);
+    commit(types.LIST_COURSES_TUTOR, resp.data.courses);
   },
   async [types.DELETE_COURSE_TUTOR]({ commit }, data) {
     let resp = await axios.delete(`tutor/courses/${data.id}`);
+    commit(types.LIST_COURSES_TUTOR, resp.data.courses);
   },
   async [types.LIST_STUDENTS_TUTOR]({ commit }, data) {
     let resp = await axios.get("tutor/students");
@@ -84,12 +126,15 @@ const myActions = {
   },
   async [types.UPDATE_STUDENT_TUTOR]({ commit }, data) {
     let resp = await axios.patch("tutor/student", data);
+    commit(types.LIST_STUDENTS_TUTOR, resp.data.students);
   },
   async [types.ADD_STUDENT_TUTOR]({ commit }, data) {
     let resp = await axios.post("tutor/student", data);
+    commit(types.LIST_STUDENTS_TUTOR, resp.data.students);
   },
   async [types.DELETE_STUDENT_TUTOR]({ commit }, data) {
     let resp = await axios.delete(`tutor/student/${data.id}`);
+    commit(types.LIST_STUDENTS_TUTOR, resp.data.students);
   },
   async [types.LIST_RANKING_STUDENTS_TUTOR]({ commit }, data) {
     let resp = await axios.get("tutor/ranking");
@@ -97,6 +142,24 @@ const myActions = {
   },
   async [types.ADD_ELECTIVES_TUTOR]({ commit }, data) {
     let resp = await axios.post("tutor/electives", data);
+  },
+  async [types.UPDATE_RANGE_TUTOR]({ commit }, data) {
+    let resp = await axios.patch(
+      `tutor/information/ranges/${data.ranges}/reservedRange/${data.reservedRange}`
+    );
+    commit(types.GET_TUTOR, resp.data.tutor);
+  },
+  async [types.SELECT_ADVANCE_STUDENTS_TUTOR]({ commit }, data) {
+    let resp = await axios.post("tutor/advance", data);
+  },
+  async [types.GET_INDEX_STUDENT]({ commit }, data) {
+    let resp = await axios.get("student/index", data);
+    commit(types.GET_STUDENT, resp.data.student);
+    commit(types.GET_TUTORS_STUDENT, resp.data.tutors);
+  },
+  async [types.GET_TUTORDETAIL_STUDENT]({ commit }, data) {
+    let resp = await axios.get(`student/information/${data.tid}`);
+    commit(types.GET_TUTORDETAIL_STUDENT, resp.data);
   }
 };
 
@@ -113,3 +176,7 @@ if (sessionStorage.getItem(author) != null) {
   myState.isLogin = true;
   myState.notLogin = false;
 }
+
+const adminRole = "f2ffae3f953b4983fe0f";
+const teacherRole = "6983f953b49c88210cb9";
+const studentRole = "bb63e5f7e0f2ffae845c";

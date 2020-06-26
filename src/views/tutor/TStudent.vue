@@ -1,5 +1,51 @@
 <template>
   <div>
+    <v-card>
+      <v-card-title>
+        Select in Advance
+      </v-card-title>
+
+      <form>
+        <v-text-field
+          v-model="name"
+          :error-messages="nameErrors"
+          :counter="10"
+          label="----Name"
+          required
+          @input="$v.name.$touch()"
+          @blur="$v.name.$touch()"
+        >
+          <v-icon slot="append" color="#5482ba">mdi-minus</v-icon>
+          <v-icon slot="prepend" color="#5482ba">mdi-minus</v-icon>
+        </v-text-field>
+        <v-text-field
+          v-model="number"
+          :error-messages="numberErrors"
+          label="----Number"
+          required
+          @input="$v.number.$touch()"
+          @blur="$v.number.$touch()"
+        >
+          <v-icon slot="append" color="#5482ba">mdi-minus</v-icon>
+          <v-icon slot="prepend" color="#5482ba">mdi-minus</v-icon>
+        </v-text-field>
+        <v-checkbox
+          v-model="checkbox"
+          :error-messages="checkboxErrors"
+          label="1.Prerequisites: Teachers are available and students have no other tutors.
+2.Consequence: When the tutor submits early mutual selection, the mutual selection relationship will be established directly.
+3.Note: Please submit after confirmation by both parties."
+          required
+          @change="$v.checkbox.$touch()"
+          @blur="$v.checkbox.$touch()"
+        ></v-checkbox>
+
+        <v-btn class="mr-4" @click="submit">submit</v-btn>
+        <v-btn @click="clear">clear</v-btn>
+        <v-spacer>.</v-spacer>
+      </form>
+    </v-card>
+    <br />
     <v-data-table
       :headers="headers"
       :items="desserts"
@@ -11,6 +57,9 @@
         <v-toolbar flat color="white">
           <v-toolbar-title>My Student</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
+          <v-btn color="#5482ba" text @click="initialize">
+            Reset The Table
+          </v-btn>
           <v-spacer></v-spacer>
           <v-text-field
             v-model="search"
@@ -89,6 +138,10 @@ import { LIST_STUDENTS_TUTOR } from "@/store/types.js";
 import { UPDATE_STUDENT_TUTOR } from "@/store/types.js";
 import { ADD_STUDENT_TUTOR } from "@/store/types.js";
 import { DELETE_STUDENT_TUTOR } from "@/store/types.js";
+import { validationMixin } from "vuelidate";
+import { required, maxLength } from "vuelidate/lib/validators";
+import { SELECT_ADVANCE_STUDENTS_TUTOR } from "@/store/types.js";
+
 import { mapState } from "vuex";
 export default {
   data: () => ({
@@ -110,19 +163,45 @@ export default {
     editedIndex: -1,
     editedItem: {
       name: "",
-      number: 0
+      number: 0,
+      state: "未选"
     },
     defaultItem: {
       name: "",
-      number: 0
-    }
+      number: 0,
+      state: "未选"
+    },
+    name: "",
+    number: "",
+    checkbox: false
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
     },
-    ...mapState(["students"])
+    ...mapState(["students"]),
+    checkboxErrors() {
+      const errors = [];
+      if (!this.$v.checkbox.$dirty) return errors;
+      !this.$v.checkbox.checked && errors.push("You must agree to continue!");
+      return errors;
+    },
+
+    nameErrors() {
+      const errors = [];
+      if (!this.$v.name.$dirty) return errors;
+      !this.$v.name.maxLength &&
+        errors.push("Name must be at most 10 characters long");
+      !this.$v.name.required && errors.push("Name is required.");
+      return errors;
+    },
+    numberErrors() {
+      const errors = [];
+      if (!this.$v.number.$dirty) return errors;
+      !this.$v.number.required && errors.push("Number is required");
+      return errors;
+    }
   },
 
   watch: {
@@ -207,6 +286,32 @@ export default {
         });
       }
       this.close();
+    },
+    submit() {
+      this.$v.$touch();
+      this.$store.dispatch(SELECT_ADVANCE_STUDENTS_TUTOR, {
+        user: {
+          name: this.name,
+          number: this.number
+        }
+      });
+    },
+    clear() {
+      this.$v.$reset();
+      this.name = "";
+      this.number = "";
+      this.checkbox = false;
+    }
+  },
+  mixins: [validationMixin],
+
+  validations: {
+    name: { required, maxLength: maxLength(10) },
+    number: { required },
+    checkbox: {
+      checked(val) {
+        return val;
+      }
     }
   }
 };

@@ -23,7 +23,7 @@
           <v-list-item to="/tutorCourse">
             <v-list-item-title>List of Courses</v-list-item-title>
             <v-list-item-icon>
-              <v-icon>mdi-file</v-icon>
+              <v-icon>mdi-water</v-icon>
             </v-list-item-icon>
           </v-list-item>
         </v-list-group>
@@ -37,19 +37,13 @@
           <v-list-item to="/tutorStudent">
             <v-list-item-title>List of Students</v-list-item-title>
             <v-list-item-action>
-              <v-icon>mdi-file</v-icon>
+              <v-icon>mdi-water</v-icon>
             </v-list-item-action>
           </v-list-item>
           <v-list-item to="/tutorGradeManage">
             <v-list-item-title>Grade Management</v-list-item-title>
             <v-list-item-action>
-              <v-icon>mdi-update</v-icon>
-            </v-list-item-action>
-          </v-list-item>
-          <v-list-item to="/tutorSelectAdvance">
-            <v-list-item-title>Selection in advance</v-list-item-title>
-            <v-list-item-action>
-              <v-icon>mdi-alert</v-icon>
+              <v-icon>mdi-water</v-icon>
             </v-list-item-action>
           </v-list-item>
         </v-list-group>
@@ -57,23 +51,3 @@
     </v-list>
   </v-card>
 </template>
-<script>
-export default {
-  data: () => ({
-    admin: [
-      ["Management", "people_outline"],
-      ["Settings", "settings"]
-    ],
-    tutor: [
-      ["Create", "add"],
-      ["Read", "insert_drive_file"],
-      ["Update", "update"],
-      ["Delete", "delete"]
-    ],
-    student: [
-      ["Management", "people_outline"],
-      ["Settings", "settings"]
-    ]
-  })
-};
-</script>
