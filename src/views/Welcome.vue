@@ -12,14 +12,10 @@
     </v-spacer>
     <v-row align="stretch" justify="space-around" top="120">
       <v-col cols="3">
-        <template v-if="notLogin" />
-        <template v-else>
-          <tSidebar id="tSidebar" v-if="isTutor" />
-          <sSidebar id="sSidebar" v-if="isStudent" />
-        </template>
+        <tSidebar id="tSidebar" v-if="isTutor" />
+        <sSidebar id="sSidebar" v-if="isStudent" />
       </v-col>
       <v-col cols="9">
-        <!-- <info v-if="isLogin" /> -->
         <router-view id="router" :key="$route.path"></router-view>
       </v-col>
     </v-row>

@@ -5,6 +5,7 @@ export const GET_INDEX_STUDENT = "getStudentIndex";
 export const GET_STUDENT = "getStudent";
 export const GET_TUTORS_STUDENT = "getTutorsByStudent";
 export const GET_TUTORDETAIL_STUDENT = "getTutorDetailByStudent";
+export const GET_TUTOR_STUDENT = "getTutorByStudent";
 
 export const GET_TUTOR = "getTutor";
 export const GET_MYSTUDENTS_TUTOR = "getMyStudentsByTutor";

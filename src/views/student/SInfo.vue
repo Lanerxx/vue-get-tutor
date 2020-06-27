@@ -14,8 +14,8 @@
       </v-banner>
       <v-card-text class="grey lighten-4">
         <v-sheet max-width="950" height="450" class="mx-auto">
-          <template v-if="tutor">
-            <h2>Your tutor : {{ tutor.name }}</h2>
+          <template v-if="student.tutor">
+            <h2>Your tutor : {{ student.tutor.user.name }}</h2>
           </template>
           <template v-else>
             <h2>

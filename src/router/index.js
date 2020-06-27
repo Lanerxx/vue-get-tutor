@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Welcome from "../views/Welcome.vue";
+
 Vue.use(VueRouter);
 
 // 没有角色要求的默认路由
@@ -46,7 +47,7 @@ let studentRoutes = [
     component: () => import("@/views/student/SInfo.vue")
   },
   {
-    path: "/studentApplication",
+    path: "/studentApplication/:tid",
     component: () => import("@/views/student/SApplication.vue")
   },
   {

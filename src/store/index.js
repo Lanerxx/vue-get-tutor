@@ -20,10 +20,11 @@ const myState = {
   courses: [],
   tutor: null,
   tutors: [],
-  courseDe: [],
-  electivesDe: [],
+  myTutor: null,
+  courseGradeVOSDe: [],
   studentsDe: [],
-  qualified: null
+  qualified: null,
+  rankingIndex: null
 };
 
 const myMutations = {
@@ -64,10 +65,12 @@ const myMutations = {
     state.tutors = data;
   },
   [types.GET_TUTORDETAIL_STUDENT](state, data) {
-    state.courseDe = data.courses;
-    state.electivesDe = data.electives;
+    state.courseGradeVOSDe = data.courseGradeVOS;
     state.studentsDe = data.students;
     state.qualified = data.qualified;
+    state.myTutor = data.tutor;
+    state.student = data.student;
+    state.rankingIndex = data.rankingIndex;
   }
 };
 
@@ -76,8 +79,6 @@ const myActions = {
   async [types.LOGIN]({ commit }, data) {
     let resp = await axios.post("login", data);
     let auth = resp.headers[author];
-
-    console.debug("ihiuhihihhuih");
     if (auth != null) {
       sessionStorage.setItem(author, auth);
       sessionStorage.setItem("role", resp.data.role);
@@ -86,7 +87,7 @@ const myActions = {
         case adminRole:
           commit(types.CERTI_ADMIN, true);
           break;
-        case teacherRole:
+        case tutorRole:
           commit(types.CERTI_TUTOR, true);
           break;
         case studentRole:
@@ -160,6 +161,14 @@ const myActions = {
   async [types.GET_TUTORDETAIL_STUDENT]({ commit }, data) {
     let resp = await axios.get(`student/information/${data.tid}`);
     commit(types.GET_TUTORDETAIL_STUDENT, resp.data);
+  },
+  async [types.GET_TUTOR_STUDENT]({ commit }, data) {
+    console.log("jhggjhg");
+
+    let resp = await axios.get(`student/tutor/${data.tid}`);
+    console.log("hguyguyguy");
+
+    commit(types.GET_STUDENT, resp.data.student);
   }
 };
 
@@ -172,11 +181,18 @@ export default new Vuex.Store({
 
 // --------------------------
 // 执行时判断，刷新时检测；也可以添加长度等更严格判断
+
+const adminRole = "f2ffae3f953b4983fe0f";
+const tutorRole = "6983f953b49c88210cb9";
+const studentRole = "bb63e5f7e0f2ffae845c";
+
 if (sessionStorage.getItem(author) != null) {
   myState.isLogin = true;
   myState.notLogin = false;
+  let role = sessionStorage.getItem("role");
+  if (role == adminRole) myState.isAdmin = true;
+  if (role == tutorRole) {
+    myState.isTutor = true;
+  }
+  if (role == studentRole) myState.isStudent = true;
 }
-
-const adminRole = "f2ffae3f953b4983fe0f";
-const teacherRole = "6983f953b49c88210cb9";
-const studentRole = "bb63e5f7e0f2ffae845c";
