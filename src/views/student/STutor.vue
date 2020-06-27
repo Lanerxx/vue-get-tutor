@@ -26,11 +26,11 @@
           ></v-text-field>
 
           <v-dialog v-model="dialog" max-width="500px">
-            <template v-slot:activator="{ on, attrs }">
+            <!-- <template v-slot:activator="{ on, attrs }">
               <v-btn color="#5482ba" dark class="mb-2" v-bind="attrs" v-on="on">
                 Add Course
               </v-btn>
-            </template>
+            </template> -->
 
             <v-card>
               <v-card-title>
@@ -72,7 +72,12 @@
         </v-toolbar>
       </template>
       <template v-slot:item.actions="{ item }">
-        <router-link :to="`/information/${item.id}`">Apply</router-link>
+        <router-link
+          :to="`/information/${item.id}`"
+          v-if="item.quantity < item.ranges"
+        >
+          Apply
+        </router-link>
         <v-icon disabled="" small class="mr-2" @click="editItem(item)">
           mdi-pencil
         </v-icon>

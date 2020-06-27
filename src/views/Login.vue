@@ -30,7 +30,7 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-btn color="orange" text @click="login">
+          <v-btn color="orange" text @click="login" to="/help">
             Login
           </v-btn>
         </v-card-actions>

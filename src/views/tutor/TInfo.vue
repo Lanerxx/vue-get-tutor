@@ -51,6 +51,7 @@
                     The total number of students that can be instructed
                   </v-subheader>
                   <v-slider
+                    :min="tutor.quantity"
                     max="30"
                     v-model="tutor.ranges"
                     thumb-label="always"

@@ -33,7 +33,6 @@ export default {
   components: {
     tSidebar: () => import("@/views/tutor/TSidebar.vue"),
     sSidebar: () => import("@/views/student/SSidebar.vue"),
-    // info: () => import("@/views/Info.vue"),
     MyHeader,
     MyFooter
   },
